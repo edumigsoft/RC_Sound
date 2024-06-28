@@ -1,8 +1,9 @@
 #ifndef __PS3_H__
 #define __PS3_H__
- 
+
 #include "Ps3Controller.h"
 #include "variables.h"
+// #include "leds.h"
 
 volatile int gear = 0;
 
@@ -31,6 +32,11 @@ void Ps3Notify()
     if (Ps3.event.button_down.cross)
     {
         sirenTrigger = !sirenTrigger;
+    }
+
+    if (Ps3.event.button_down.square)
+    {
+        blueLightTrigger = !blueLightTrigger;
     }
 
     // if (abs(Ps3.event.analog_changed.button.l1))

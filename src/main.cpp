@@ -1,19 +1,71 @@
 #include <Arduino.h>
-//
+
 #include "rom/rtc.h"
 #include "soc/rtc_wdt.h"
-//
+
 #include "ps3.h"
 #include "battery.h"
 #include "leds.h"
 #include "triggers.h"
+#include "playback.h"
+
+// static unsigned long dacOffsetMicros;
+// boolean dacInit;
+
+// void dacOffsetFade()
+// {
+//   if (!dacInit)
+//   {
+//     if (micros() - dacOffsetMicros > 100)
+//     { // Every 0.1ms
+//       dacOffsetMicros = micros();
+//       dacOffset++; // fade DAC offset slowly to prevent it from popping, if ESP32 powered up after amplifier
+//       if (dacOffset == 128)
+//         dacInit = true;
+//     }
+//   }
+// }
+
+void engineOnOff()
+{
+  // static unsigned long pulseDelayMillis; // TODO
+  static unsigned long idleDelayMillis;
+
+  // Engine automatically switched on or off depending on throttle position and 15s delay timne
+  if (currentThrottle > 80 || driveState != 0)
+    idleDelayMillis = millis(); // reset delay timer, if throttle not in neutral
+
+#ifdef AUTO_ENGINE_ON_OFF
+  if (millis() - idleDelayMillis > 15000)
+  {
+    engineOn = false; // after delay, switch engine off
+  }
+#endif
+
+#ifdef AUTO_LIGHTS
+  if (millis() - idleDelayMillis > 10000)
+  {
+    lightsOn = false; // after delay, switch light off
+  }
+#endif
+
+  // Engine start detection
+  if (currentThrottle > 100 && !airBrakeTrigger)
+  {
+    engineOn = true;
+
+#ifdef AUTO_LIGHTS
+    lightsOn = true;
+#endif
+  }
+}
 
 void Task1code(void *pvParameters)
 {
   for (;;)
   {
     // DAC offset fader
-    // dacOffsetFade();
+    dacOffsetFade();
 
     // if (xSemaphoreTake(xRpmSemaphore, portMAX_DELAY))
     // {
@@ -27,7 +79,7 @@ void Task1code(void *pvParameters)
     // }
 
     // Switch engine on or off
-    // engineOnOff();
+    engineOnOff();
 
     // LED control
     // if (autoZeroDone)
@@ -46,9 +98,8 @@ void Task1code(void *pvParameters)
 
 void setup()
 {
-  //
   disableCore0WDT();
-  //
+
   rtc_wdt_protect_off();
   rtc_wdt_set_length_of_reset_signal(RTC_WDT_SYS_RESET_SIG, RTC_WDT_LENGTH_3_2us);
   rtc_wdt_set_stage(RTC_WDT_STAGE0, RTC_WDT_STAGE_ACTION_RESET_SYSTEM);
@@ -56,15 +107,15 @@ void setup()
   rtc_wdt_enable();
   // rtc_wdt_disable();
   rtc_wdt_protect_on();
-  //
+
   // Serial.begin(MONITOR_BOUND);
-  //
+
   // setupPs3();
-  //
+
   battery.attach(BATTERY_DETECT_PIN);
-  //
+
   delay(1000);
-  //
+
   if (xPwmSemaphore == NULL)
   {
     xPwmSemaphore = xSemaphoreCreateMutex();
@@ -78,22 +129,22 @@ void setup()
     if ((xRpmSemaphore) != NULL)
       xSemaphoreGive((xRpmSemaphore));
   }
-  //
+
   setupStatusLED();
-  // Battery
+
   setupBattery();
-  //
+
   indicatorL.on();
   indicatorR.on();
-  //
+
   setupPs3();
-  //
+
   // setupMcpwm(); // mcpwm servo output setup
-  //
+
   // Refresh sample intervals (important, because MAX_RPM_PERCENTAGE was probably changed above)
   // maxSampleInterval = 4000000 / sampleRate;
   // minSampleInterval = 4000000 / sampleRate * 100 / MAX_RPM_PERCENTAGE;
-  //
+
   // Task 1 setup (running on core 0)
   TaskHandle_t Task1;
   // create a task that will be executed in the Task1code() function, with priority 1 and executed on core 0
@@ -105,37 +156,20 @@ void setup()
       1,         // priority of the task (1 = low, 3 = medium, 5 = highest)
       &Task1,    // Task handle to keep track of created task
       0);        // pin task to core 0
-  //
+
   // Interrupt timer for variable sample rate playback
-  // variableTimer = timerBegin(0, 20, true);                           // timer 0, MWDT clock period = 12.5 ns * TIMGn_Tx_WDT_CLK_PRESCALE -> 12.5 ns * 20 -> 250 ns = 0.25 us, countUp
-  // timerAttachInterrupt(variableTimer, &variablePlaybackTimer, true); // edge (not level) triggered
-  // timerAlarmWrite(variableTimer, variableTimerTicks, true);          // autoreload true
-  // timerAlarmEnable(variableTimer);                                   // enable
+  variableTimer = timerBegin(0, 20, true);                           // timer 0, MWDT clock period = 12.5 ns * TIMGn_Tx_WDT_CLK_PRESCALE -> 12.5 ns * 20 -> 250 ns = 0.25 us, countUp
+  timerAttachInterrupt(variableTimer, &variablePlaybackTimer, true); // edge (not level) triggered
+  timerAlarmWrite(variableTimer, variableTimerTicks, true);          // autoreload true
+  timerAlarmEnable(variableTimer);                                   // enable
 
   // Interrupt timer for fixed sample rate playback
-  // fixedTimer = timerBegin(1, 20, true);                        // timer 1, MWDT clock period = 12.5 ns * TIMGn_Tx_WDT_CLK_PRESCALE -> 12.5 ns * 20 -> 250 ns = 0.25 us, countUp
-  // timerAttachInterrupt(fixedTimer, &fixedPlaybackTimer, true); // edge (not level) triggered
-  // timerAlarmWrite(fixedTimer, fixedTimerTicks, true);          // autoreload true
-  // timerAlarmEnable(fixedTimer);                                // enable
+  fixedTimer = timerBegin(1, 20, true);                        // timer 1, MWDT clock period = 12.5 ns * TIMGn_Tx_WDT_CLK_PRESCALE -> 12.5 ns * 20 -> 250 ns = 0.25 us, countUp
+  timerAttachInterrupt(fixedTimer, &fixedPlaybackTimer, true); // edge (not level) triggered
+  timerAlarmWrite(fixedTimer, fixedTimerTicks, true);          // autoreload true
+  timerAlarmEnable(fixedTimer);                                // enable
 
-  // rtc_wdt_feed(); // Feed watchdog timer
-
-  // Calculate RC input signal ranges for all channels
-  // Channels signal range calibration -----
-  // const uint16_t pulseNeutral = 30;
-  // const uint16_t pulseSpan = 480;
-  // for (uint8_t i = 1; i < PULSE_ARRAY_SIZE; i++)
-  // {
-  //   pulseZero[i] = 1500; // Always 1500. This is the center position. Auto centering is now done in "processRawChannels()"
-
-  //   // Input signals
-  //   pulseMaxNeutral[i] = pulseZero[i] + pulseNeutral;
-  //   pulseMinNeutral[i] = pulseZero[i] - pulseNeutral;
-  //   pulseMax[i] = pulseZero[i] + pulseSpan;
-  //   pulseMin[i] = pulseZero[i] - pulseSpan;
-  //   pulseMaxLimit[i] = pulseZero[i] + pulseLimit;
-  //   pulseMinLimit[i] = pulseZero[i] - pulseLimit;
-  // }
+  rtc_wdt_feed(); // Feed watchdog timer
 
   // autoZeroDone = true;
 
