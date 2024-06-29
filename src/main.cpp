@@ -4,61 +4,14 @@
 #include "soc/rtc_wdt.h"
 
 #include "ps3.h"
+#include "variables.h"
 #include "battery.h"
 #include "leds.h"
 #include "triggers.h"
 #include "playback.h"
-
-// static unsigned long dacOffsetMicros;
-// boolean dacInit;
-
-// void dacOffsetFade()
-// {
-//   if (!dacInit)
-//   {
-//     if (micros() - dacOffsetMicros > 100)
-//     { // Every 0.1ms
-//       dacOffsetMicros = micros();
-//       dacOffset++; // fade DAC offset slowly to prevent it from popping, if ESP32 powered up after amplifier
-//       if (dacOffset == 128)
-//         dacInit = true;
-//     }
-//   }
-// }
-
-void engineOnOff()
-{
-  // static unsigned long pulseDelayMillis; // TODO
-  static unsigned long idleDelayMillis;
-
-  // Engine automatically switched on or off depending on throttle position and 15s delay timne
-  if (currentThrottle > 80 || driveState != 0)
-    idleDelayMillis = millis(); // reset delay timer, if throttle not in neutral
-
-#ifdef AUTO_ENGINE_ON_OFF
-  if (millis() - idleDelayMillis > 15000)
-  {
-    engineOn = false; // after delay, switch engine off
-  }
-#endif
-
-#ifdef AUTO_LIGHTS
-  if (millis() - idleDelayMillis > 10000)
-  {
-    lightsOn = false; // after delay, switch light off
-  }
-#endif
-
-  // Engine start detection
-  if (currentThrottle > 100 && !airBrakeTrigger)
-  {
-    engineOn = true;
-
-#ifdef AUTO_LIGHTS
-    lightsOn = true;
-#endif
-  }
-}
+#include "engine.h"
+#include "steering.h"
+#include "traction.h"
 
 void Task1code(void *pvParameters)
 {
@@ -67,32 +20,31 @@ void Task1code(void *pvParameters)
     // DAC offset fader
     dacOffsetFade();
 
-    // if (xSemaphoreTake(xRpmSemaphore, portMAX_DELAY))
-    // {
-    //   // Simulate engine mass, generate RPM signal
-    //   engineMassSimulation();
+    if (xSemaphoreTake(xRpmSemaphore, portMAX_DELAY))
+    {
+      // Simulate engine mass, generate RPM signal
+      engineMassSimulation();
 
-    //   // Call gear selector
-    //   if (automatic || doubleClutch)
-    //     automaticGearSelector();
-    //   xSemaphoreGive(xRpmSemaphore); // Now free or "Give" the semaphore for others.
-    // }
+      // Call gear selector
+      if (automatic || doubleClutch)
+        automaticGearSelector();
+      xSemaphoreGive(xRpmSemaphore); // Now free or "Give" the semaphore for others.
+    }
 
     // Switch engine on or off
     engineOnOff();
 
     // LED control
-    // if (autoZeroDone)
-    // led();
+    led();
 
     // Shaker control
-    // shaker();
+    shaker();
 
     // Gearbox detection
-    // gearboxDetection();
+    gearboxDetection();
 
-    // ESC control & low discharge protection
-    // esc();
+    // Traction control & low discharge protection
+    tractionOutput();
   }
 }
 
@@ -108,7 +60,7 @@ void setup()
   // rtc_wdt_disable();
   rtc_wdt_protect_on();
 
-  // Serial.begin(MONITOR_BOUND);
+  Serial.begin(MONITOR_BOUND);
 
   // setupPs3();
 
@@ -134,10 +86,12 @@ void setup()
 
   setupBattery();
 
-  indicatorL.on();
-  indicatorR.on();
+  // indicatorL.on();
+  // indicatorR.on();
 
   setupPs3();
+
+  setupSteering();
 
   // setupMcpwm(); // mcpwm servo output setup
 
@@ -171,8 +125,6 @@ void setup()
 
   rtc_wdt_feed(); // Feed watchdog timer
 
-  // autoZeroDone = true;
-
   // ESC output range calibration
   // escPulseMaxNeutral = pulseZero[3] + escTakeoffPunch; // Additional takeoff punch around zero
   // escPulseMinNeutral = pulseZero[3] - escTakeoffPunch;
@@ -180,20 +132,22 @@ void setup()
   // escPulseMax = pulseZero[3] + escPulseSpan;
   // escPulseMin = pulseZero[3] - escPulseSpan + escReversePlus; // Additional power for ESC with slow reverse
 
-  // ESC setup
-  // setupMcpwmESC(); // ESC now using mpcpwm
+  // setupTraction();
 }
 
 void loop()
 {
+  // Não funciona
+  // Serial.printf("Connected? = %o\n", Ps3.isConnected());
   // if (!Ps3.isConnected())
   // {
-  //   engineOn = false;
+  //   Serial.println("!Ps3.isConnected()");
+  //   Ps3DisConnected();
   //   return;
   // }
 
-  // PWM servo signal output
-  // mcpwmOutput();
+  // Servo signal output
+  steeringOutput();
 
   // Horn triggering
   triggerHorn();
@@ -204,7 +158,7 @@ void loop()
   if (xSemaphoreTake(xRpmSemaphore, portMAX_DELAY))
   {
     // Map pulsewidth to throttle
-    // mapThrottle();
+    mapThrottle();
 
     xSemaphoreGive(xRpmSemaphore); // Now free or "Give" the semaphore for others.
   }

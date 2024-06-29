@@ -3,7 +3,7 @@
 
 #include "Ps3Controller.h"
 #include "variables.h"
-// #include "leds.h"
+#include "leds.h"
 
 volatile int gear = 0;
 
@@ -53,11 +53,13 @@ void Ps3Notify()
     if (Ps3.event.button_down.l1)
     {
         indicatorLonManual = !indicatorLonManual;
+        indicatorRonManual = false;
     }
 
     if (Ps3.event.button_down.r1)
     {
         indicatorRonManual = !indicatorRonManual;
+        indicatorLonManual = false;
     }
 
     int yAxisValue = (Ps3.data.analog.stick.ly); // Left stick  - y axis - forward/backward car movement
@@ -99,31 +101,46 @@ void Ps3Notify()
 #else
 //
 #endif
-
-        currentThrottle = map(yAxisValue, 127, -128, 0, 500);
+        tractionValue = map(yAxisValue, 127, -128, 1000, 2000);
     }
 }
 
 void Ps3OnConnect()
 {
     // engineStart = true;
+
+    indicatorL.off();
+    indicatorR.off();
+
     Serial.println("Connected!.");
+}
+
+void Ps3DisConnected()
+{
+    // engineStart = false;
+    engineOn = false;
+
+    indicatorL.on();
+    indicatorR.on();
+
+    Serial.println("DisConnected!.");
 }
 
 void Ps3OnDisConnect()
 {
-    // engineStart = false;
-    engineOn = false;
-    Serial.println("DisConnected!.");
+    Ps3DisConnected();
 }
 
 void setupPs3()
 {
+    indicatorL.on();
+    indicatorR.on();
+
     Ps3.attach(Ps3Notify);
     Ps3.attachOnConnect(Ps3OnConnect);
     Ps3.attachOnDisconnect(Ps3OnDisConnect);
     // Change according to control mac
-    Ps3.begin("5C:C9:D3:7D:A3:29");
+    Ps3.begin(MAC_PS3);
 
     // Blink leds no connected on
     while (!Ps3.isConnected())

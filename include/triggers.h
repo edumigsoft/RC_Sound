@@ -48,16 +48,8 @@ void triggerIndicators()
         R = false;
     }
 
-    if (!INDICATOR_DIR)
-    {
-        indicatorLon = L;
-        indicatorRon = R;
-    }
-    else
-    {
-        indicatorLon = R;
-        indicatorRon = L;
-    }
+    indicatorLon = R;
+    indicatorRon = L;
 
     if (indicatorLon || indicatorRon)
         hazard = false;
