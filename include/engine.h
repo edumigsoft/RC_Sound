@@ -479,27 +479,27 @@ void mapThrottle()
 #else // Normal mode ---------------------------------------------------------------------------
 
     // check if the pulsewidth looks like a servo pulse
-    // if (pulseWidth[3] > pulseMinLimit[3] && pulseWidth[3] < pulseMaxLimit[3])
-    // {
-    //     if (pulseWidth[3] < pulseMin[3])
-    //         pulseWidth[3] = pulseMin[3]; // Constrain the value
-    //     if (pulseWidth[3] > pulseMax[3])
-    //         pulseWidth[3] = pulseMax[3];
+    if (tractionValue > pulseMinLimit3 && tractionValue < pulseMaxLimit3)
+    {
+        if (tractionValue < pulseMin3)
+            tractionValue = pulseMin3; // Constrain the value
+        if (tractionValue > pulseMax3)
+            tractionValue = pulseMax3;
 
-    //     // calculate a throttle value from the pulsewidth signal
-    //     if (pulseWidth[3] > pulseMaxNeutral[3])
-    //     {
-    //         currentThrottle = map(pulseWidth[3], pulseMaxNeutral[3], pulseMax[3], 0, 500);
-    //     }
-    //     else if (pulseWidth[3] < pulseMinNeutral[3])
-    //     {
-    //         currentThrottle = map(pulseWidth[3], pulseMinNeutral[3], pulseMin[3], 0, 500);
-    //     }
-    //     else
-    //     {
-    //         currentThrottle = 0;
-    //     }
-    // }
+        // calculate a throttle value from the pulsewidth signal
+        if (tractionValue > pulseMaxNeutral3)
+        {
+            currentThrottle = map(tractionValue, pulseMaxNeutral3, pulseMax3, 0, 500);
+        }
+        else if (tractionValue < pulseMinNeutral3)
+        {
+            currentThrottle = map(tractionValue, pulseMinNeutral3, pulseMin3, 0, 500);
+        }
+        else
+        {
+            currentThrottle = 0;
+        }
+    }
 #endif
 
     // Auto throttle --------------------------------------------------------------------------
@@ -616,15 +616,14 @@ void mapThrottle()
 
     // Tire squealing ----
     uint8_t steeringAngle = 0;
-    // uint8_t brakeSquealVolume = 0;
 
     // Cornering squealing
-    // if (pulseWidth[1] < 1500)
-    //     steeringAngle = map(pulseWidth[1], 1000, 1500, 100, 0);
-    // else if (pulseWidth[1] > 1500)
-    //     steeringAngle = map(pulseWidth[1], 1500, 2000, 0, 100);
-    // else
-    //     steeringAngle = 0;
+    if (steeringValue < 1500)
+        steeringAngle = map(steeringValue, 1000, 1500, 100, 0);
+    else if (steeringValue > 1500)
+        steeringAngle = map(steeringValue, 1500, 2000, 0, 100);
+    else
+        steeringAngle = 0;
 
     tireSquealVolume = steeringAngle * currentSpeed * currentSpeed / 125000; // Volume = steering angle * speed * speed
 

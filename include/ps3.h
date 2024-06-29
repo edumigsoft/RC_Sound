@@ -78,7 +78,7 @@ void Ps3Notify()
 
     if (engineOn)
     {
-        steeringAngle = map(xAxisValue, -128, 127, STEERING_ANGLE_LEFT, STEERING_ANGLE_RIGHT);
+        steeringValue = map(xAxisValue, -128, 127, 1000, 2000);
 
 #ifndef SEMI_AUTOMATIC
         if (Ps3.event.button_down.up)

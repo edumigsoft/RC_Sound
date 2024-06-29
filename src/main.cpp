@@ -62,7 +62,7 @@ void setup()
 
   Serial.begin(MONITOR_BOUND);
 
-  // setupPs3();
+  setupPs3();
 
   battery.attach(BATTERY_DETECT_PIN);
 
@@ -86,18 +86,9 @@ void setup()
 
   setupBattery();
 
-  // indicatorL.on();
-  // indicatorR.on();
-
-  setupPs3();
+  // setupPs3();
 
   setupSteering();
-
-  // setupMcpwm(); // mcpwm servo output setup
-
-  // Refresh sample intervals (important, because MAX_RPM_PERCENTAGE was probably changed above)
-  // maxSampleInterval = 4000000 / sampleRate;
-  // minSampleInterval = 4000000 / sampleRate * 100 / MAX_RPM_PERCENTAGE;
 
   // Task 1 setup (running on core 0)
   TaskHandle_t Task1;
@@ -124,13 +115,6 @@ void setup()
   timerAlarmEnable(fixedTimer);                                // enable
 
   rtc_wdt_feed(); // Feed watchdog timer
-
-  // ESC output range calibration
-  // escPulseMaxNeutral = pulseZero[3] + escTakeoffPunch; // Additional takeoff punch around zero
-  // escPulseMinNeutral = pulseZero[3] - escTakeoffPunch;
-
-  // escPulseMax = pulseZero[3] + escPulseSpan;
-  // escPulseMin = pulseZero[3] - escPulseSpan + escReversePlus; // Additional power for ESC with slow reverse
 
   // setupTraction();
 }

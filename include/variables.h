@@ -88,7 +88,7 @@ volatile boolean neutralGear = false; // Transmission in neutral
 boolean lowRange = false;             // Transmission range (off road reducer)
 
 // Direction
-int steeringAngle = STEERING_ANGLE_MIDDLE;
+int16_t steeringValue = 1500;
 
 // Throttle
 int16_t currentThrottle = 0;      // 0 - 500 (Throttle trigger input)
@@ -128,18 +128,12 @@ static int8_t driveRampRate;
 static int8_t driveRampGain;
 static int8_t brakeRampRate;
 // uint16_t escRampTime;
-// int8_t direction = 0;
 static uint16_t escPulseWidth = 1500;
 static uint16_t escPulseWidthOut = 1500;
 static uint16_t escSignal = 1500;
 // static uint8_t motorDriverDuty = 0;
 static unsigned long escMillis;
 // static unsigned long lastStateTime;
-// // static int8_t pulse; // -1 = reverse, 0 = neutral, 1 = forward
-// // static int8_t escPulse; // -1 = reverse, 0 = neutral, 1 = forward
-// static int8_t driveRampRate;
-// static int8_t driveRampGain;
-// static int8_t brakeRampRate;
 const uint16_t pulseNeutral = 30;
 const uint16_t pulseSpan = 480;
 const uint16_t pulseZero3 = 1500;

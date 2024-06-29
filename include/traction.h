@@ -12,9 +12,9 @@
 // #define RES 8     // Resolution in bits:  8 (0-255),  12 (0-4095), or 16 (0-65535)
 // #define FREQ 5000 // PWM Frequency in Hz
 
-MX1508 motorTraction(TRACTION_PIN_1, TRACTION_PIN_2, TRACTION_CHANNEL_1, TRACTION_CHANNEL_2); // Default-  8 bit resoluion at 2500 Hz
-// // MX1508 motorA(PINA,PINB, CH1, CH2, RES);                // Specify resolution
-// // MX1508 motorA(PINA,PINB, CH1, CH2, RES, FREQ);          // Specify resolution and frequency
+// MX1508 motorTraction(TRACTION_PIN_1, TRACTION_PIN_2, TRACTION_CHANNEL_1, TRACTION_CHANNEL_2); // Default-  8 bit resoluion at 2500 Hz
+MX1508 motorTraction(TRACTION_PIN_1,TRACTION_PIN_2, TRACTION_CHANNEL_1, TRACTION_CHANNEL_2);//, RES);                // Specify resolution
+// MX1508 motorA(PINA,PINB, CH1, CH2, RES, FREQ);          // Specify resolution and frequency
 
 int8_t pulse()
 { // Throttle direction
@@ -26,7 +26,6 @@ int8_t pulse()
     else
         pulse = 0; // 0 = Neutral
     return pulse;
-    // return pulseNew;
 }
 
 int8_t tractionPulse()
@@ -82,9 +81,6 @@ void tractionOutput()
 #elif defined VIRTUAL_16_SPEED_SEQUENTIAL
     escRampTime = escRampTimeThirdGear * virtualManualGearRatio[selectedGear] / 5;
 
-#elif defined STEAM_LOCOMOTIVE_MODE
-    escRampTime = escRampTimeSecondGear;
-
 #else // TAMIYA 3 speed shifting transmission
     if (selectedGear == 1)
         escRampTime = escRampTimeFirstGear; // about 20
@@ -124,13 +120,6 @@ void tractionOutput()
         brakeRampRate = map(currentThrottle, 0, 500, 1, escBrakeSteps);
         driveRampRate = map(currentThrottle, 0, 500, 1, escAccelerationSteps);
     } // ----------------------------------------------------
-
-    // Emergency ramp rates for falisafe
-    // if (failSafe)
-    // {
-    //     brakeRampRate = escBrakeSteps;
-    //     driveRampRate = escBrakeSteps;
-    // }
 
     // Additional brake detection signal, applied immediately. Used to prevent sound issues, if braking very quickly
     brakeDetect = ((pulse() == 1 && tractionPulse() == -1) || (pulse() == -1 && tractionPulse() == 1));
@@ -342,25 +331,21 @@ void tractionOutput()
         escSignal = map(escPulseWidthOut, escPulseMax, escPulseMin, 1000, 2000); // direction inversed
 #endif // --------------------------------------------
 
-        // Serial.printf("escSignal = %d\n", escSignal);
-
         if (escSignal > 1500)
         {
             escSignal = map(escSignal, 1500, 2000, 0, 255);
-            // motorTraction.motorGo(escSignal);
+            motorTraction.motorGo(escSignal);
         }
         else if (escSignal < 1500)
         {
             escSignal = map(escSignal, 1500, 1000, 0, 255);
-            // motorA.motorRev(escSignal);
+            motorTraction.motorRev(escSignal);
         }
         else
         {
             // motorTraction.motorBrake();
-            // motorTraction.motorStop();
+            motorTraction.motorStop();
         }
-
-        // Serial.printf("escSignal2 = %d\n", escSignal);
 
         // Calculate a speed value from the pulsewidth signal (used as base for engine sound RPM while clutch is engaged)
         if (escPulseWidth > pulseMaxNeutral3)
