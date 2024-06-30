@@ -6,15 +6,55 @@
 #include "3_ESC.h"
 #include "8_Sound.h"
 
-#include <ESP32MX1508.h>
+// #include <ESP32MX1508.h>
 
-// // Optional Parameters
-// #define RES 8     // Resolution in bits:  8 (0-255),  12 (0-4095), or 16 (0-65535)
-// #define FREQ 5000 // PWM Frequency in Hz
+// Optional Parameters
+#define RES 8     // Resolution in bits:  8 (0-255),  12 (0-4095), or 16 (0-65535)
+#define FREQ 2500 // PWM Frequency in Hz: 8 bits (2500), 12 bits (5000)
 
-// MX1508 motorTraction(TRACTION_PIN_1, TRACTION_PIN_2, TRACTION_CHANNEL_1, TRACTION_CHANNEL_2); // Default-  8 bit resoluion at 2500 Hz
-MX1508 motorTraction(TRACTION_PIN_1,TRACTION_PIN_2, TRACTION_CHANNEL_1, TRACTION_CHANNEL_2);//, RES);                // Specify resolution
-// MX1508 motorA(PINA,PINB, CH1, CH2, RES, FREQ);          // Specify resolution and frequency
+// MX1508 motorTraction(TRACTION_PIN_1, TRACTION_PIN_2, TRACTION_CHANNEL_1, TRACTION_CHANNEL_2, RES, FREQ);
+
+static uint8_t motorDriverDuty = 0;
+
+void motorDuty(int speed)
+{
+    if (speed > 1500)
+    { // Forward
+        motorDriverDuty = map(speed, 1500, 2000, 0, 255);
+        // motorTraction.motorGo(motorDriverDuty);
+
+        // Serial.printf("motorDriverDuty = %d\n", motorDriverDuty);
+
+        ledcWrite(TRACTION_CHANNEL_1, motorDriverDuty);
+        ledcWrite(TRACTION_CHANNEL_2, 0);
+
+        // digitalWrite(TRACTION_PIN_1, HIGH);
+        // digitalWrite(TRACTION_PIN_2, LOW);
+    }
+    else if (speed < 1500)
+    { // Reverse
+        motorDriverDuty = map(speed, 1500, 1000, 0, 255);
+        // motorTraction.motorRev(motorDriverDuty);
+
+        // Serial.printf("motorDriverDuty = %d\n", motorDriverDuty);
+
+        ledcWrite(TRACTION_CHANNEL_1, motorDriverDuty);
+        ledcWrite(TRACTION_CHANNEL_2, 255);
+
+        // digitalWrite(TRACTION_PIN_1, LOW);
+        // digitalWrite(TRACTION_PIN_2, HIGH);
+    }
+    else
+    { // Neutral
+        motorDriverDuty = 0;
+        // motorTraction.motorStop();
+        // digitalWrite(TRACTION_PIN_1, LOW);
+        // ledcWrite(TRACTION_CHANNEL_2, 0);
+
+        ledcWrite(TRACTION_CHANNEL_1, 0);
+        ledcWrite(TRACTION_CHANNEL_2, 0);
+    }
+}
 
 int8_t pulse()
 { // Throttle direction
@@ -324,28 +364,18 @@ void tractionOutput()
 #endif // --------------------------------------------
 
         // ESC range & direction calibration -------------
-#ifndef ESC_DIR
-        // escSignal = escPulseWidthOut;
-        escSignal = map(escPulseWidthOut, escPulseMin, escPulseMax, 1000, 2000);
-#else
-        escSignal = map(escPulseWidthOut, escPulseMax, escPulseMin, 1000, 2000); // direction inversed
-#endif // --------------------------------------------
+        // #ifndef ESC_DIR
+        //         escPulseWidthOut = map(escPulseWidthOut, escPulseMin, escPulseMax, 1000, 2000);
 
-        if (escSignal > 1500)
-        {
-            escSignal = map(escSignal, 1500, 2000, 0, 255);
-            motorTraction.motorGo(escSignal);
-        }
-        else if (escSignal < 1500)
-        {
-            escSignal = map(escSignal, 1500, 1000, 0, 255);
-            motorTraction.motorRev(escSignal);
-        }
-        else
-        {
-            // motorTraction.motorBrake();
-            motorTraction.motorStop();
-        }
+        //         // Serial.printf("escPulseWidthOut = %d, escPulseMin = %d, escPulseMax = %d, escSignal = %d\n", escPulseWidthOut, escPulseMin, escPulseMax, escSignal);
+        // #else
+        //         escSignal = map(escPulseWidthOut, escPulseMax, escPulseMin, 1000, 2000); // direction inversed
+        // #endif // --------------------------------------------
+
+        // escPulseWidthOut = map(escPulseWidthOut, escPulseMin, escPulseMax, 1000, 2000);
+        escSignal = map(escPulseWidthOut, escPulseMax, escPulseMin, 1000, 2000); // direction inversed
+
+        motorDuty(escPulseWidthOut);
 
         // Calculate a speed value from the pulsewidth signal (used as base for engine sound RPM while clutch is engaged)
         if (escPulseWidth > pulseMaxNeutral3)
@@ -358,13 +388,23 @@ void tractionOutput()
         }
         else
             currentSpeed = 0;
+
+        // Serial.printf("escPulseWidthOut = %d, escSignal = %d, escPulseWidth = %d, currentSpeed = %d\n", escPulseWidthOut, escSignal, escPulseWidth, currentSpeed);
     }
 #endif
 }
 
 void setupTraction()
 {
-    //
+    pinMode(TRACTION_PIN_1, OUTPUT);
+    ledcSetup(TRACTION_CHANNEL_1, FREQ, RES);
+    ledcAttachPin(TRACTION_PIN_1, TRACTION_CHANNEL_1);
+
+    pinMode(TRACTION_PIN_2, OUTPUT);
+    ledcSetup(TRACTION_CHANNEL_2, FREQ, RES);
+    ledcAttachPin(TRACTION_PIN_2, TRACTION_CHANNEL_2);
+
+    motorDuty(0);
 }
 
 #endif // __TRACTION_H__

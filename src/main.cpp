@@ -6,7 +6,6 @@
 #include "ps3.h"
 #include "variables.h"
 #include "battery.h"
-#include "leds.h"
 #include "triggers.h"
 #include "playback.h"
 #include "engine.h"
@@ -62,7 +61,7 @@ void setup()
 
   Serial.begin(MONITOR_BOUND);
 
-  setupPs3();
+  // setupPs3();
 
   battery.attach(BATTERY_DETECT_PIN);
 
@@ -86,7 +85,7 @@ void setup()
 
   setupBattery();
 
-  // setupPs3();
+  setupPs3();
 
   setupSteering();
 
@@ -116,7 +115,10 @@ void setup()
 
   rtc_wdt_feed(); // Feed watchdog timer
 
-  // setupTraction();
+  setupTraction();
+
+  // setupPs3();
+  // rtc_wdt_feed(); // Feed watchdog timer
 }
 
 void loop()
