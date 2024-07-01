@@ -1,21 +1,14 @@
 #ifndef __VARIABLES_H__
 #define __VARIABLES_H__
 
-/*
-Variables or consts choose car
-*/
-
-#include "vehicle.h"
-
-/*************** */
-
-// #define JAKEBRAKE_ENGINE_SLOWDOWN
-// #define JAKE_BRAKE_SOUND
-// #define REV_SOUND
-#define SEMI_AUTOMATIC
-#define AUTO_INDICATORS
+// // #define JAKEBRAKE_ENGINE_SLOWDOWN
+// // #define JAKE_BRAKE_SOUND
+// // #define REV_SOUND
+// #define SEMI_AUTOMATIC
+// #define AUTO_INDICATORS
 
 #include <Arduino.h>
+#include "vehicle.h"
 
 // Sound
 volatile boolean engineOn = false;                // Signal for engine on / off
@@ -112,7 +105,7 @@ static unsigned long dacOffsetMicros;
 boolean dacInit;
 volatile uint8_t dacOffset = 0; // 128, but needs to be ramped up slowly to prevent popping noise, if switched on
 
-// ESC
+// TRACTION
 volatile boolean escIsBraking = false; // ESC is in a braking state
 volatile boolean escIsDriving = false; // ESC is in a driving state
 volatile boolean escInReverse = false; // ESC is driving or braking backwards
@@ -127,11 +120,9 @@ volatile bool crawlerMode = false; // Crawler mode intended for crawling competi
 static int8_t driveRampRate;
 static int8_t driveRampGain;
 static int8_t brakeRampRate;
-// uint16_t escRampTime;
 static uint16_t escPulseWidth = 1500;
 static uint16_t escPulseWidthOut = 1500;
-static uint16_t escSignal = 1500;
-// static uint8_t motorDriverDuty = 0;
+// static uint16_t escSignal = 1500;
 static unsigned long escMillis;
 // static unsigned long lastStateTime;
 const uint16_t pulseNeutral = 30;
@@ -146,6 +137,17 @@ uint16_t pulseMinLimit3 = pulseZero3 - pulseLimit;
 uint16_t tractionValue = pulseZero3;
 uint16_t pulseMax3 = pulseZero3 + pulseSpan;
 uint16_t pulseMin3 = pulseZero3 - pulseSpan;
+// Allows to scale vehicle file dependent acceleration
+uint16_t globalAccelerationPercentage = 100; // about 100 - 200% (200 for Jeep, 150 for 1/8 Landy) Experimental, may cause automatic transmission shifting issues!
+// Crawler mode escRampTime (see "8_Sound.h") WARNING: a very low setting may damage your transmission!
+const uint8_t crawlerEscRampTime = 10; // about 10 (15 for Jeep), less = more direct control = less virtual inertia
+// Brake margin: (Experimental!)
+// This setting prevents the ESC from going completely back to zero / neutral as long as the brake trigger is pulled.
+// This prevents the vehicle from rolling back as long as brake is applied. 0 = no effect, ca. 20 = strong effect.
+// How it works? Prevents the ESC from entering the "drag brake range"
+// Warning: vehicle may be unable to stop, if too high, especially when driving downhill! NEVER more than 20!
+const uint16_t brakeMargin = 10; // For RZ7886 motor driver and 370 motor = 10
+static uint8_t motorDriverDuty = 0;
 
 // Sampling intervals for interrupt timer (adjusted according to your sound file sampling rate)
 uint32_t maxSampleInterval = 4000000 / sampleRate;
@@ -183,6 +185,32 @@ int32_t speedLimit = maxRpm;            // The speed limit, depending on selecte
 // float batteryVoltage;
 // uint8_t numberOfCells;
 bool batteryProtection = false;
+/* Battery low discharge protection (only for boards with voltage divider resistors):
+ *  IMPORTANT: Enter used resistor values in Ohms (Ω) and THEN adjust DIODE_DROP, until your readings match the actual battery voltage! */
+// //#define BATTERY_PROTECTION // This will disable the ESC output, if the battery cutout voltage is reached. 2 fast flashes = battery error!
+// const float CUTOFF_VOLTAGE = 3.3;        // Usually 3.3 V per LiPo cell. NEVER below 3.2 V!
+// const float FULLY_CHARGED_VOLTAGE = 4.2; // Usually 4.2 V per LiPo cell, NEVER above!
+// const float RECOVERY_HYSTERESIS = 0.2;   // around 0.2 V
+/* Note on resistor values: These values will be used to calculate the actual ratio between these two resistors (which is also called a "voltage divider").
+ * When selecting resistors, always use two of the same magnitude: Like, for example, 10k/2k, 20k/4k or 100k/20k. NEVER exceed a ratio LOWER than (4:1 = 4)!
+ * WARNING: If the ratio is too LOW, like 10k/5k (2:1 = 2), the battery voltage will most likely DAMAGE the controller permanently!
+ * Example calculation: 2000 / (2000 + 10000) = 0.166 666 666 7; 7.4 V * 0.167 = 1.2358 V (of 3.3 V maximum on GPIO Pin). */
+// uint32_t RESISTOR_TO_BATTTERY_PLUS = 10000; // Value in Ohms (Ω), for example 10000
+// uint32_t RESISTOR_TO_GND = 1000;           // Value in Ohms (Ω), for example 2000. Measuring exact resistor values before soldering, if possible is recommended!
+// float DIODE_DROP = 0;                   // Fine adjust measured value and/or consider diode voltage drop (about 0.34V for SS34 diode)
+/* It is recommended to add a sticker to your ESP32, which includes the 3 calibration values above */
+// volatile int outOfFuelVolumePercentage = 80; // Adjust the message volume in %
+// Select the out of fuel message you want:
+// #include "vehicles/sounds/OutOfFuelEnglish.h"
+// // #include "vehicles/sounds/OutOfFuelGerman.h"
+// // #include "vehicles/sounds/OutOfFuelFrench.h"
+// // #include "vehicles/sounds/OutOfFuelDutch.h"
+// // #include "vehicles/sounds/OutOfFuelSpanish.h"
+// // #include "vehicles/sounds/OutOfFuelPortuguese.h"
+// // #include "vehicles/sounds/OutOfFuelJapanese.h"
+// // #include "vehicles/sounds/OutOfFuelChinese.h"
+// // #include "vehicles/sounds/OutOfFuelTurkish.h"
+// // #include "vehicles/sounds/OutOfFuelRussian.h"
 
 // Clutch
 boolean clutchDisengaged = true; // Active while clutch is disengaged

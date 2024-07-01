@@ -40,7 +40,6 @@ void triggerIndicators()
     if (steeringValue > (1500 - indicatorOn / 3))
         R = false;
         
-    // else if (indicatorLonManual)
     if (indicatorLonManual)
     {
         L = true;
@@ -51,11 +50,6 @@ void triggerIndicators()
         L = false;
         R = true;
     }
-    // else
-    // {
-    //     L = false;
-    //     R = false;
-    // }
 
     indicatorLon = R;
     indicatorRon = L;

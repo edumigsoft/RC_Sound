@@ -1,5 +1,11 @@
 #include <Arduino.h>
 
+// #define JAKEBRAKE_ENGINE_SLOWDOWN
+// #define JAKE_BRAKE_SOUND
+// #define REV_SOUND
+#define SEMI_AUTOMATIC
+#define AUTO_INDICATORS
+
 #include "rom/rtc.h"
 #include "soc/rtc_wdt.h"
 
@@ -116,9 +122,6 @@ void setup()
   rtc_wdt_feed(); // Feed watchdog timer
 
   setupTraction();
-
-  // setupPs3();
-  // rtc_wdt_feed(); // Feed watchdog timer
 }
 
 void loop()
