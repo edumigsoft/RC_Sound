@@ -6,6 +6,10 @@
 #include "3_ESC.h"
 #include "8_Sound.h"
 
+#include "driver/mcpwm.h"
+
+// #include "ESP32Servo.h"
+
 // #include <ESP32MX1508.h>
 
 // Optional Parameters
@@ -16,44 +20,73 @@
 
 static uint8_t motorDriverDuty = 0;
 
+// Servo tractionServo;
+
 void motorDuty(int speed)
 {
     if (speed > 1500)
     { // Forward
-        motorDriverDuty = map(speed, 1500, 2000, 0, 255);
-        // motorTraction.motorGo(motorDriverDuty);
+        // motorDriverDuty = map(speed, 1500, 2000, 0, 255);
 
         // Serial.printf("motorDriverDuty = %d\n", motorDriverDuty);
 
-        ledcWrite(TRACTION_CHANNEL_1, motorDriverDuty);
-        ledcWrite(TRACTION_CHANNEL_2, 0);
+        // ledcWrite(TRACTION_CHANNEL_1, motorDriverDuty);
+        // ledcWrite(TRACTION_CHANNEL_2, 0);
 
         // digitalWrite(TRACTION_PIN_1, HIGH);
         // digitalWrite(TRACTION_PIN_2, LOW);
+
+        // motorDriverDuty = map(speed, 1500, 2000, 90, 180);
+        // mcpwm_set_duty(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM_OPR_A, motorDriverDuty);
+        // mcpwm_set_duty_type(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM_OPR_A, MCPWM_DUTY_MODE_1);
+
+        motorDriverDuty = map(speed, 1500, 2000, 0, 100);
+        mcpwm_set_signal_high(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM_OPR_A); // Pin A high!
+        mcpwm_set_duty(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM_OPR_B, motorDriverDuty);
+        mcpwm_set_duty_type(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM_OPR_B, MCPWM_DUTY_MODE_1); // MCPWM_DUTY_MODE_1 = inverse PWM mode, high, if 0% PWM
     }
     else if (speed < 1500)
     { // Reverse
-        motorDriverDuty = map(speed, 1500, 1000, 0, 255);
-        // motorTraction.motorRev(motorDriverDuty);
+        // motorDriverDuty = map(speed, 1500, 1000, 0, 255);
 
         // Serial.printf("motorDriverDuty = %d\n", motorDriverDuty);
 
-        ledcWrite(TRACTION_CHANNEL_1, motorDriverDuty);
-        ledcWrite(TRACTION_CHANNEL_2, 255);
+        // ledcWrite(TRACTION_CHANNEL_1, motorDriverDuty);
+        // ledcWrite(TRACTION_CHANNEL_2, 255);
 
         // digitalWrite(TRACTION_PIN_1, LOW);
         // digitalWrite(TRACTION_PIN_2, HIGH);
+
+        // motorDriverDuty = map(speed, 1500, 1000, 90, 0);
+        // mcpwm_set_duty(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM_OPR_A, motorDriverDuty);
+        // mcpwm_set_duty_type(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM_OPR_A, MCPWM_DUTY_MODE_1);
+
+        motorDriverDuty = map(speed, 1500, 1000, 0, 100);
+        mcpwm_set_signal_high(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM_OPR_B); // Pin B high!
+        mcpwm_set_duty(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM_OPR_A, motorDriverDuty);
+        mcpwm_set_duty_type(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM_OPR_A, MCPWM_DUTY_MODE_1);
     }
     else
     { // Neutral
         motorDriverDuty = 0;
-        // motorTraction.motorStop();
         // digitalWrite(TRACTION_PIN_1, LOW);
         // ledcWrite(TRACTION_CHANNEL_2, 0);
 
-        ledcWrite(TRACTION_CHANNEL_1, 0);
-        ledcWrite(TRACTION_CHANNEL_2, 0);
+        // ledcWrite(TRACTION_CHANNEL_1, 0);
+        // ledcWrite(TRACTION_CHANNEL_2, 0);
+
+        // mcpwm_set_duty(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM_OPR_A, 100);
+        // mcpwm_set_duty_type(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM_OPR_A, MCPWM_DUTY_MODE_0);
+
+        // motorDriverDuty = 90;
+
+        mcpwm_set_duty(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM_OPR_A, 100);
+        mcpwm_set_duty(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM_OPR_B, 100);
+        mcpwm_set_duty_type(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM_OPR_A, MCPWM_DUTY_MODE_0);
+        mcpwm_set_duty_type(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM_OPR_B, MCPWM_DUTY_MODE_0);
     }
+
+    // tractionServo.write(motorDriverDuty);
 }
 
 int8_t pulse()
@@ -396,13 +429,44 @@ void tractionOutput()
 
 void setupTraction()
 {
-    pinMode(TRACTION_PIN_1, OUTPUT);
-    ledcSetup(TRACTION_CHANNEL_1, FREQ, RES);
-    ledcAttachPin(TRACTION_PIN_1, TRACTION_CHANNEL_1);
+    // pinMode(TRACTION_PIN_1, OUTPUT);
+    // ledcSetup(TRACTION_CHANNEL_1, FREQ, RES);
+    // ledcAttachPin(TRACTION_PIN_1, TRACTION_CHANNEL_1);
 
-    pinMode(TRACTION_PIN_2, OUTPUT);
-    ledcSetup(TRACTION_CHANNEL_2, FREQ, RES);
-    ledcAttachPin(TRACTION_PIN_2, TRACTION_CHANNEL_2);
+    // pinMode(TRACTION_PIN_2, OUTPUT);
+    // ledcSetup(TRACTION_CHANNEL_2, FREQ, RES);
+    // ledcAttachPin(TRACTION_PIN_2, TRACTION_CHANNEL_2);
+
+    // 1. set our ESC output pin
+    // mcpwm_gpio_init(MCPWM_UNIT_1, MCPWM0A, TRACTION_PIN_1); // Set ESC as PWM0A
+
+    // // 2. configure MCPWM parameters
+    // mcpwm_config_t pwm_config;
+    // pwm_config.frequency = 50; // frequency always 50Hz 500
+    // pwm_config.cmpr_a = 0;     // duty cycle of PWMxa = 0
+    // pwm_config.cmpr_b = 0;     // duty cycle of PWMxb = 0
+    // pwm_config.counter_mode = MCPWM_UP_COUNTER;
+    // pwm_config.duty_mode = MCPWM_DUTY_MODE_0; // 0 = not inverted, 1 = inverted
+
+    // // 3. configure channels with settings above
+    // mcpwm_init(MCPWM_UNIT_1, MCPWM_TIMER_0, &pwm_config); // Configure PWM0A & PWM0B
+
+    // tractionServo.attach(TRACTION_PIN_1);
+
+    // 1. set our ESC output pin
+    mcpwm_gpio_init(MCPWM_UNIT_1, MCPWM0A, TRACTION_PIN_1); // Set pin 1 as PWM0A
+    mcpwm_gpio_init(MCPWM_UNIT_1, MCPWM0B, TRACTION_PIN_2); // Set pin 2 as PWM0B
+
+    // 2. configure MCPWM parameters
+    mcpwm_config_t pwm_config;
+    pwm_config.frequency = 500; // frequency
+    pwm_config.cmpr_a = 0;                   // duty cycle of PWMxa = 0
+    pwm_config.cmpr_b = 0;                   // duty cycle of PWMxb = 0
+    pwm_config.counter_mode = MCPWM_UP_COUNTER;
+    pwm_config.duty_mode = MCPWM_DUTY_MODE_0; // 0 = not inverted, 1 = inverted
+
+    // 3. configure channels with settings above
+    mcpwm_init(MCPWM_UNIT_1, MCPWM_TIMER_0, &pwm_config); // Configure PWM0A & PWM0B
 
     motorDuty(0);
 }
