@@ -67,8 +67,6 @@ void setup()
 
   Serial.begin(MONITOR_BOUND);
 
-  // setupPs3();
-
   battery.attach(BATTERY_DETECT_PIN);
 
   delay(1000);

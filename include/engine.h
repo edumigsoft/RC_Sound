@@ -4,7 +4,6 @@
 #include "variables.h"
 #include "curves.h"
 #include "4_Transmission.h"
-#include "5_Shaker.h"
 
 void engineOnOff()
 {

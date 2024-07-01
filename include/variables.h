@@ -1,12 +1,6 @@
 #ifndef __VARIABLES_H__
 #define __VARIABLES_H__
 
-// // #define JAKEBRAKE_ENGINE_SLOWDOWN
-// // #define JAKE_BRAKE_SOUND
-// // #define REV_SOUND
-// #define SEMI_AUTOMATIC
-// #define AUTO_INDICATORS
-
 #include <Arduino.h>
 #include "vehicle.h"
 
@@ -179,6 +173,12 @@ enum EngineState                  // Engine state enum
 int16_t engineLoad = 0;                 // 0 - 500
 volatile uint16_t engineSampleRate = 0; // Engine sample rate
 int32_t speedLimit = maxRpm;            // The speed limit, depending on selected virtual gear
+
+// Shaker parameters (simulating engine vibrations)
+const uint8_t shakerStart = 100; // Shaker power while engine start (max. 255, about 100)
+const uint8_t shakerIdle = 49; // Shaker power while idling (max. 255, about 49)
+const uint8_t shakerFullThrottle = 40; // Shaker power while full throttle (max. 255, about 40)
+const uint8_t shakerStop = 60; // Shaker power while engine stop (max. 255, about 60)
 
 // Battery
 // float batteryCutoffvoltage;
