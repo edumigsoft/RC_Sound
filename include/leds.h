@@ -2,7 +2,6 @@
 #define __OBJECTS_H__
 
 #include <statusLED.h>
-#include "6_Lights.h"
 
 statusLED headLight(false); // "false" = output not inversed
 // statusLED tailLight(false);

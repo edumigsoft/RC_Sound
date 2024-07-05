@@ -1,9 +1,37 @@
 #include <Arduino.h>
 
+// #define DOUBLE_CLUTCH // Double-clutch (Zwischengas) Enable this for older manual transmission trucks without synchronised gears
+// #define HIGH_SLIPPINGPOINT // Clutch will engage @ higher RPM, if defined. Comment this out for heavy vehicles like semi trucks
+// Transmission controls options ===========================================================================================================
+// #define SEMI_AUTOMATIC This will simulate a semi automatic transmission. Shifting is not controlled by the 3 position switch in this mode!
+#define SEMI_AUTOMATIC // Works for VIRTUAL_3_SPEED or real 3 speed transmission. Don't select this @ the same time as VIRTUAL_16_SPEED_SEQUENTIAL
+// #define MODE1_SHIFTING The 2 speed transmission is shifted by the "Mode 1" button instead of the 3 position switch.
+//  This is often used in WPL vehicles with 2 speed transmission, used as off road reducer, shifted while driving slowly in order to engage properly.
+// #define MODE1_SHIFTING
+// #define TRANSMISSION_NEUTRAL Allows to put the transmission in neutral. This can't be used, if the "Mode 1" button is used for other stuff!
+//  You can leave it on, if defined MODE1_SHIFTING. It is disabled automatically in this case.
+#define TRANSMISSION_NEUTRAL
+// #define VIRTUAL_3_SPEED allows to simulate a 3 speed shifing transmission, if your vehicle doesn't have a real one.
+// Gears are virtually shifted, using the 3 position switch. Example: your crawler has a 2 speed transmission, which is used as off road reducer,
+// but no real 3 speed shifting transmission. Don't uncomment if for vehicles with electric or hydrostatic drive or automatic transmissions!
+// Also don't use it for STEAM_LOCOMOTIVE_MODE
+// #define VIRTUAL_3_SPEED
+// #define VIRTUAL_16_SPEED_SEQUENTIAL will enable a sequencial transmission, shifted by up / down impulses via 3 position switch
+// #define VIRTUAL_16_SPEED_SEQUENTIAL // This is still experimental and not working properly! Don't use it.
+// Additional transmission options =========================================================================================================
+// Automatic transmission with overdrive (lower RPM in top gear, gear ratio lower than 1:1, 4 & 6 speed only)
+// Also usable in combination with VIRTUAL_3_SPEED. The 4th gear is switched automatically in this case, if driving in 3rd gear @ full throttle
+#define OVERDRIVE // Don't use it for: doubleClutch. Not working with SEMI_AUTOMATIC, but you can leave it on in this case.
+// #define NO_SIREN // siren sound is not played, if defined
+// #define NO_INDICATOR_SOUND // If you don't want the indicator "tick - tack" sound
+//#define NO_CABLIGHTS // The cablights step in the lights sequence is skipped, if defined
+//#define NO_FOGLIGHTS // The foglights step in the lights sequence is skipped, if defined
+#define THIRD_BRAKELIGHT // if defined, pin 32 is used for a third brake light, otherwise for a trailer presence switch (pulled to GND = no trailer attached)
+//#define FLICKERING_WHILE_CRANKING // The lights will flicker a bit during engine cranking, otherwise they are just a bit dimmed
+#define HAZARDS_WHILE_5TH_WHEEL_UNLOCKED // Hazards on, if 5th wheel is unlocked
 // #define JAKEBRAKE_ENGINE_SLOWDOWN
 // #define JAKE_BRAKE_SOUND
 // #define REV_SOUND
-#define SEMI_AUTOMATIC
 #define AUTO_INDICATORS
 
 #include "rom/rtc.h"

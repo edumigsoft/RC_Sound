@@ -43,6 +43,13 @@ volatile uint16_t throttleDependentChargerVolume = 0; // cooling fan volume acco
 volatile uint16_t rpmDependentWastegateVolume = 0;    // wastegate volume according to rpm
 volatile uint16_t tireSquealVolume = 0;               // Tire squeal volume according to speed and cornering radius
 volatile int16_t masterVolume = 100;                  // Master volume percentage
+// Volume adjustment
+// const  uint8_t numberOfVolumeSteps = 3; // The mumber of volume steps below
+// const uint8_t masterVolumePercentage[] = {100, 66, 44}; // loud, medium, silent (more than 100% may cause distortions)
+const uint8_t numberOfVolumeSteps = 4;                     // The mumber of volume steps below
+const uint8_t masterVolumePercentage[] = {100, 66, 44, 0}; // loud, medium, silent, no sound (more than 100% may cause distortions)
+// Crawler mode
+const uint8_t masterVolumeCrawlerThreshold = 44; // If master volume is <= this threshold, crawler mode (without virtual inertia) is active
 
 // Lights
 int8_t lightsState = 0;                        // for lights state machine
@@ -62,6 +69,14 @@ uint8_t dipDim;
 uint8_t xenonIgnitionFlash;
 static unsigned long xenonMillis;
 uint32_t indicatorFade = 300; // 300 is the fading time, simulating an incandescent bulb
+// Adjust the brightness of your lights here -----------------------------------------------------------------------------------------------------
+// All brightness values 0 - 255
+uint8_t cabLightsBrightness = 100; // Usually 255, 100 for Actros & Ural
+uint8_t sideLightsBrightness = 150; // Usually 200, 100 for WPL C44, 50 for Landy, 100 for P407, 150 for Actros
+uint8_t rearlightDimmedBrightness = 30; // tailligt brightness, if not braking, about 30
+uint8_t rearlightParkingBrightness = 3; // 0, if you want the taillights being off, if side lights are on, or about 5 if you want them on (0 for US Mode)
+uint8_t headlightParkingBrightness = 3; // 0, if you want the headlights being off, if side lights are on, or about 5 if you want them on (0 for US Mode)
+uint8_t reversingLightBrightness = 140; // Around 140, 50 for Landy & Ural
 
 // Transmission
 uint8_t selectedGear = 1;             // The currently used gear of our shifting gearbox
@@ -73,6 +88,10 @@ boolean gearUpShiftingPulse;          // Active, if shifting upwards begins
 boolean gearDownShiftingPulse;        // Active, if shifting downwards begins
 volatile boolean neutralGear = false; // Transmission in neutral
 boolean lowRange = false;             // Transmission range (off road reducer)
+// In some cases we want a different reverse acceleration for automatic transmission vehicles.
+uint16_t automaticReverseAccelerationPercentage = 100;
+// Low range percentage is used for MODE1_SHIFTING (off road reducer)
+uint16_t lowRangePercentage = 58; // WPL 2 speed ratios = 29:1, 17:1 = 58% in low range. You may want to change this for other 2 speed transmissions
 
 // Direction
 int16_t steeringValue = 1500;
@@ -214,5 +233,8 @@ bool batteryProtection = false;
 
 // Clutch
 boolean clutchDisengaged = true; // Active while clutch is disengaged
+// Clutch options ==========================================================================================================================
+uint16_t maxClutchSlippingRpm = 250; // The clutch will never slip above this limit! (about 250) 500 for vehicles like locomotives
+// and the Kirovets tractor with hydrostatic or electric drive! Mainly required for "VIRTUAL_3_SPEED" mode
 
 #endif // __VARIABLES_H__

@@ -4,10 +4,6 @@
 #include <Arduino.h>
 #include "driver/mcpwm.h"
 #include "variables.h"
-// #include "3_ESC.h"
-#include "8_Sound.h"
-
-// #include "driver/mcpwm.h"
 
 void motorDuty(int speed)
 {
