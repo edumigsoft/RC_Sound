@@ -14,7 +14,7 @@ Existe no mercado outras opções a venda ou em código aberto, mas o prazer est
 Este primeiro teste, foi construído utilizando Ponte H, no lugar do ESC. Por enquanto com resultados legais.
 
 ## English
-### System based (inspired) by: [Rc_Engine_Sound_ESP32](https://github.com/TheDIYGuy999/Rc_Engine_Sound_ESP32)
+### System based by: [Rc_Engine_Sound_ESP32](https://github.com/TheDIYGuy999/Rc_Engine_Sound_ESP32)
 
 The initial objective was to adapt it for use with Bluetooth and cell phones, without the need to use expensive traditional controls.
 
