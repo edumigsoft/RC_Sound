@@ -9,13 +9,19 @@
 
 // US trucks --------
 // #include "vehicles/CaboverCAT3408.h" // Cabover truck with Caterpillar 3408 V8 Diesel
-// #include "vehicles/PeterbiltDetroit8v92.h" // Peterbilt 359 with Detroit 8V92 V8 2 stroke Diesel
+#ifdef PETERBILTDETROIT8V92
+#include "vehicles/PeterbiltDetroit8v92.h" // Peterbilt 359 with Detroit 8V92 V8 2 stroke Diesel
+#endif
 // #include "vehicles/KenworthW900ADetroit8V71.h" // Kenworth W900A with Detroit 8V71 V8 2 stroke Diesel
 // #include "vehicles/KenworthW900ACAT3408.h" // Kenworth W900A with Caterpillar 3408 V8 Diesel (King Hauler, one of the best)
 // #include "vehicles/CAT3408OpenPipes.h" // Kenworth W900A with Caterpillar 3408 V8 Diesel and open pipes
 // #include "vehicles/KenworthW900ACAT3408new.h" // Kenworth W900A with Caterpillar 3408 V8 Diesel (good bass speaker required)
 // #include "vehicles/KenworthCummins335.h" // 1950ies Kenworth with Cummins 335 R6 Diesel
+
+#ifdef MACKSUPERLINER
 #include "vehicles/MackSuperLiner.h" // MACK Super Liner
+#endif
+
 // #include "vehicles/M35.h"// AM General M35 "deuce and a half" military truck, turbocharged R6 universal fuel engine
 // #include "vehicles/US_Firetruck.h"// US firetruck with CAT3408 V8 and Allison 6 speed automatic (horn & siren loop capable)
 // #include "vehicles/FreightlinerCummins350.h" // Freightliner Cabover with Cummins 350 R6 Diesel
@@ -24,10 +30,23 @@
 // #include "vehicles/Tatra813.h" // Tatra 813 8x8 V12 Diesel military truck (old version for comparison, don't use it)
 // #include "vehicles/Tatra813new.h" // Tatra 813 8x8 V12 Diesel military truck
 // #include "vehicles/UnimogU1000.h" // Umimog U 1000 with turbocharged R6 Diesel incl. Feuerwehr "Martinshorn" siren
-// #include "vehicles/MercedesActros1836.h" // Mercedes Actros 1863 or 3363 truck with R6 Diesel
-// #include "vehicles/MercedesActrosV6.h" // Mercedes Actros V6 Race Truck incl. tire squealing
-// #include "vehicles/ScaniaV8_50ton.h" // SCANIA V8 50 ton truck. Unknown model. Bad quality!
-// #include "vehicles/ScaniaV8.h" // SCANIA V8 truck, unknown model
+
+#ifdef MERCEDESACTROS1836
+#include "vehicles/MercedesActros1836.h" // Mercedes Actros 1863 or 3363 truck with R6 Diesel
+#endif
+
+#ifdef MERCEDESACTROSV6
+#include "vehicles/MercedesActrosV6.h" // Mercedes Actros V6 Race Truck incl. tire squealing
+#endif
+
+#ifdef SCANIAV8_50TON
+#include "vehicles/ScaniaV8_50ton.h" // SCANIA V8 50 ton truck. Unknown model. Bad quality!
+#endif
+
+#ifdef SCANIAV8
+#include "vehicles/ScaniaV8.h" // SCANIA V8 truck, unknown model
+#endif
+
 // #include "vehicles/1000HpScaniaV8.h" // 1000 HP SCANIA V8 truck with open pipes. Insane sound! Good bass speakers reqired
 // #include "vehicles/Scania143.h" // SCANIA 143 V8 - the legend! The best sounding in my opinion
 // #include "vehicles/ScaniaV8Firetruck.h" // SCANIA V8 firetruck, automatic Allison 6 speed transmission with torque converter, "Martinshorn" siren
@@ -58,15 +77,25 @@
 // #include "vehicles/Benford3TonDumper.h" // Benford 3 ton dumper
 
 // US motorcycles --------
-// #include "vehicles/HarleyDavidsonFXSB.h" // Harley Davidson FXSB V2 motorcycle
+#ifdef HARLEYDAVIDSONFXSB
+#include "vehicles/HarleyDavidsonFXSB.h" // Harley Davidson FXSB V2 motorcycle
+#endif
 
 // US cars --------
 // #include "vehicles/ChevyNovaCoupeV8.h" // 1975 Chevy Nova Coupe V8
-// #include "vehicles/1965FordMustangV8.h"// 1965 Ford Mustang V8
+
+#ifdef FORDMUSTANGV81965
+#include "vehicles/1965FordMustangV8.h" // 1965 Ford Mustang V8
+#endif
+
 // #include "vehicles/Chevy468.h" // Chevy 468 big block V8
 
 // EU cars --------
-// #include "vehicles/VwBeetle.h" // VW Käfer / Beetle
+
+#ifdef VWBEETLE
+#include "vehicles/VwBeetle.h" // VW Käfer / Beetle
+#endif
+
 // #include "vehicles/JaguarXJS.h" // Jaguar XJS V12, manual transmission
 // #include "vehicles/JaguarXJSautomatic.h" // Jaguar XJS V12, automatic transmission
 // #include "vehicles/MGBGtV8.h" // MGB GT V8, manual transmission
@@ -107,6 +136,5 @@
 
 // Generic Diesels --------
 // #include "vehicles/generic6zylDiesel.h" // Generic inline 6 Diesel, no turbo, manual transmission (optimised for smaller speakers)
-
 
 #endif // __VEHICLE_H__

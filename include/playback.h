@@ -21,20 +21,27 @@ void dacOffsetFade()
 void IRAM_ATTR variablePlaybackTimer()
 {
     static uint32_t attenuatorMillis = 0;
-    static uint32_t curEngineSample = 0;          // Index of currently loaded engine sample
-    static uint32_t curRevSample = 0;             // Index of currently loaded engine rev sample
-    static uint32_t curTurboSample = 0;           // Index of currently loaded turbo sample
-    static uint32_t curFanSample = 0;             // Index of currently loaded fan sample
-    static uint32_t curChargerSample = 0;         // Index of currently loaded charger sample
-    static uint32_t curStartSample = 0;           // Index of currently loaded start sample
-    static uint32_t curJakeBrakeSample = 0;       // Index of currently loaded jake brake sample
+    static uint32_t curEngineSample = 0; // Index of currently loaded engine sample
+#ifdef REV_SOUND
+    static uint32_t curRevSample = 0; // Index of currently loaded engine rev sample
+#endif
+    static uint32_t curTurboSample = 0;   // Index of currently loaded turbo sample
+    static uint32_t curFanSample = 0;     // Index of currently loaded fan sample
+    static uint32_t curChargerSample = 0; // Index of currently loaded charger sample
+    static uint32_t curStartSample = 0;   // Index of currently loaded start sample
+#ifdef JAKE_BRAKE_SOUND
+    static uint32_t curJakeBrakeSample = 0; // Index of currently loaded jake brake sample
+#endif
     static uint32_t lastDieselKnockSample = 0;    // Index of last Diesel knock sample
     static uint16_t attenuator = 0;               // Used for volume adjustment during engine switch off
     static uint16_t speedPercentage = 0;          // slows the engine down during shutdown
-    static int32_t a, a1, a2, a3, b, c, d, e = 0; // Input signals for mixer: a = engine, b = additional sound, c = turbo sound, d = fan sound, e = supercharger sound
+    static int32_t a, a1, a3, b, c, d, e = 0; // Input signals for mixer: a = engine, b = additional sound, c = turbo sound, d = fan sound, e = supercharger sound
     static int32_t f = 0;                         // Input signals for mixer: f = hydraulic pump
     static int32_t g = 0;                         // Input signals for mixer: g = train track rattle
-    uint8_t a1Multi = 0;                          // Volume multipliers
+#ifdef REV_SOUND
+    static int32_t a2 = 0;
+    uint8_t a1Multi = 0; // Volume multipliers
+#endif
 
     switch (engineState)
     {
@@ -112,7 +119,10 @@ void IRAM_ATTR variablePlaybackTimer()
                 dieselKnockTrigger = true;
                 dieselKnockTriggerFirst = true;
             }
+
+#ifdef JAKE_BRAKE_SOUND
             curJakeBrakeSample = 0;
+#endif
         }
         else
         { // Jake brake sound ----
@@ -250,16 +260,19 @@ void IRAM_ATTR variablePlaybackTimer()
 
 void IRAM_ATTR fixedPlaybackTimer()
 {
-    static uint32_t curHornSample = 0;                            // Index of currently loaded horn sample
-    static uint32_t curSirenSample = 0;                           // Index of currently loaded siren sample
-    static uint32_t curSound1Sample = 0;                          // Index of currently loaded sound1 sample
-    static uint32_t curReversingSample = 0;                       // Index of currently loaded reversing beep sample
-    static uint32_t curIndicatorSample = 0;                       // Index of currently loaded indicator tick sample
-    static uint32_t curWastegateSample = 0;                       // Index of currently loaded wastegate sample
-    static uint32_t curBrakeSample = 0;                           // Index of currently loaded brake sound sample
-    static uint32_t curParkingBrakeSample = 0;                    // Index of currently loaded brake sound sample
-    static uint32_t curShiftingSample = 0;                        // Index of currently loaded shifting sample
-    static uint32_t curDieselKnockSample = 0;                     // Index of currently loaded Diesel knock sample
+    static uint32_t curHornSample = 0;         // Index of currently loaded horn sample
+    static uint32_t curSirenSample = 0;        // Index of currently loaded siren sample
+    static uint32_t curSound1Sample = 0;       // Index of currently loaded sound1 sample
+    static uint32_t curReversingSample = 0;    // Index of currently loaded reversing beep sample
+    static uint32_t curIndicatorSample = 0;    // Index of currently loaded indicator tick sample
+    static uint32_t curWastegateSample = 0;    // Index of currently loaded wastegate sample
+    static uint32_t curBrakeSample = 0;        // Index of currently loaded brake sound sample
+    static uint32_t curParkingBrakeSample = 0; // Index of currently loaded brake sound sample
+    static uint32_t curShiftingSample = 0;     // Index of currently loaded shifting sample
+    static uint32_t curDieselKnockSample = 0;  // Index of currently loaded Diesel knock sample
+#ifdef TIRE_SQUEAL
+    static uint32_t curTireSquealSample = 0; // Index of currently loaded tire squeal sample
+#endif
     static int32_t a, a1, a2 = 0;                                 // Input signals "a" for mixer
     static int32_t b, b0, b1, b2, b3, b4, b5, b6, b7, b8, b9 = 0; // Input signals "b" for mixer
     static int32_t c, c1, c2, c3 = 0;                             // Input signals "c" for mixer
@@ -540,7 +553,7 @@ void IRAM_ATTR fixedPlaybackTimer()
     {
 #if defined RPM_DEPENDENT_KNOCK // knock volume also depending on engine rpm
         b7 = (knockSamples[curDieselKnockSample] * dieselKnockVolumePercentage / 100 * throttleDependentKnockVolume / 100 * rpmDependentKnockVolume / 100);
-#else                        // Just depending on throttle
+#else // Just depending on throttle
         b7 = (knockSamples[curDieselKnockSample] * dieselKnockVolumePercentage / 100 * throttleDependentKnockVolume / 100);
 #endif
         curDieselKnockSample++;
