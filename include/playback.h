@@ -22,14 +22,14 @@ void IRAM_ATTR variablePlaybackTimer()
 {
     static uint32_t attenuatorMillis = 0;
     static uint32_t curEngineSample = 0; // Index of currently loaded engine sample
-#ifdef REV_SOUND
+#if defined REV_SOUND
     static uint32_t curRevSample = 0; // Index of currently loaded engine rev sample
 #endif
     static uint32_t curTurboSample = 0;   // Index of currently loaded turbo sample
     static uint32_t curFanSample = 0;     // Index of currently loaded fan sample
     static uint32_t curChargerSample = 0; // Index of currently loaded charger sample
     static uint32_t curStartSample = 0;   // Index of currently loaded start sample
-#ifdef JAKE_BRAKE_SOUND
+#if defined JAKE_BRAKE_SOUND
     static uint32_t curJakeBrakeSample = 0; // Index of currently loaded jake brake sample
 #endif
     static uint32_t lastDieselKnockSample = 0;    // Index of last Diesel knock sample
@@ -38,7 +38,7 @@ void IRAM_ATTR variablePlaybackTimer()
     static int32_t a, a1, a3, b, c, d, e = 0; // Input signals for mixer: a = engine, b = additional sound, c = turbo sound, d = fan sound, e = supercharger sound
     static int32_t f = 0;                         // Input signals for mixer: f = hydraulic pump
     static int32_t g = 0;                         // Input signals for mixer: g = train track rattle
-#ifdef REV_SOUND
+#if defined REV_SOUND
     static int32_t a2 = 0;
     uint8_t a1Multi = 0; // Volume multipliers
 #endif
@@ -93,7 +93,7 @@ void IRAM_ATTR variablePlaybackTimer()
                 // Optional rev sound, recorded at medium rpm. Note, that it needs to represent the same number of ignition cycles as the
                 // idle sound. For example 4 or 8 for a V8 engine. It also needs to have about the same length. In order to adjust the length
                 // or "revSampleCount", change the "Rate" setting in Audacity until it is about the same.
-#ifdef REV_SOUND
+#if defined REV_SOUND
                 a2 = (revSamples[curRevSample] * throttleDependentRevVolume / 100 * revVolumePercentage / 100); // Rev sound
                 if (curRevSample < revSampleCount)
                     curRevSample++;
@@ -112,7 +112,7 @@ void IRAM_ATTR variablePlaybackTimer()
                 curEngineSample = 0;
                 if (jakeBrakeRequest)
                     engineJakeBraking = true;
-#ifdef REV_SOUND
+#if defined REV_SOUND
                 curRevSample = 0;
 #endif
                 lastDieselKnockSample = 0;
@@ -120,13 +120,13 @@ void IRAM_ATTR variablePlaybackTimer()
                 dieselKnockTriggerFirst = true;
             }
 
-#ifdef JAKE_BRAKE_SOUND
+#if defined JAKE_BRAKE_SOUND
             curJakeBrakeSample = 0;
 #endif
         }
         else
         { // Jake brake sound ----
-#ifdef JAKE_BRAKE_SOUND
+#if defined JAKE_BRAKE_SOUND
             a3 = (jakeBrakeSamples[curJakeBrakeSample] * rpmDependentJakeBrakeVolume / 100 * jakeBrakeVolumePercentage / 100); // Jake brake sound
             a2 = 0;
             a1 = 0;
@@ -145,7 +145,7 @@ void IRAM_ATTR variablePlaybackTimer()
         }
 
         // Engine sound mixer ----
-#ifdef REV_SOUND
+#if defined REV_SOUND
         // Mixing the idle and rev sounds together, according to engine rpm
         // Below the "revSwitchPoint" target, the idle volume precentage is 90%, then falling to 0% @ max. rpm.
         // The total of idle and rev volume percentage is always 100%
@@ -270,7 +270,7 @@ void IRAM_ATTR fixedPlaybackTimer()
     static uint32_t curParkingBrakeSample = 0; // Index of currently loaded brake sound sample
     static uint32_t curShiftingSample = 0;     // Index of currently loaded shifting sample
     static uint32_t curDieselKnockSample = 0;  // Index of currently loaded Diesel knock sample
-#ifdef TIRE_SQUEAL
+#if defined TIRE_SQUEAL
     static uint32_t curTireSquealSample = 0; // Index of currently loaded tire squeal sample
 #endif
     static int32_t a, a1, a2 = 0;                                 // Input signals "a" for mixer
@@ -292,7 +292,7 @@ void IRAM_ATTR fixedPlaybackTimer()
         {
             a1 = (hornSamples[curHornSample] * hornVolumePercentage / 100);
             curHornSample++;
-#ifdef HORN_LOOP // Optional "endless loop" (points to be defined manually in horn file)
+#if defined HORN_LOOP // Optional "endless loop" (points to be defined manually in horn file)
             if (hornTrigger && curHornSample == hornLoopEnd)
                 curHornSample = hornLoopBegin; // Loop, if trigger still present
 #endif
@@ -323,7 +323,7 @@ void IRAM_ATTR fixedPlaybackTimer()
         {
             a2 = (sirenSamples[curSirenSample] * sirenVolumePercentage / 100);
             curSirenSample++;
-#ifdef SIREN_LOOP // Optional "endless loop" (points to be defined manually in siren file)
+#if defined SIREN_LOOP // Optional "endless loop" (points to be defined manually in siren file)
             if (sirenTrigger && curSirenSample == sirenLoopEnd)
                 curSirenSample = sirenLoopBegin; // Loop, if trigger still present
 #endif
@@ -500,7 +500,7 @@ void IRAM_ATTR fixedPlaybackTimer()
         curDieselKnockSample = 0;
     }
 
-#ifdef V8 // (former ADAPTIVE_KNOCK_VOLUME, rename it in your config file!)
+#if defined V8 // (former ADAPTIVE_KNOCK_VOLUME, rename it in your config file!)
     // Ford or Scania V8 ignition sequence: 1 - 5 - 4 - 2* - 6 - 3 - 7 - 8* (* = louder knock pulses, because 2nd exhaust in same manifold after 90°)
     if (curKnockCylinder == 4 || curKnockCylinder == 8)
         knockSilent = false;
@@ -508,7 +508,7 @@ void IRAM_ATTR fixedPlaybackTimer()
         knockSilent = true;
 #endif
 
-#ifdef V8_MEDIUM // (former ADAPTIVE_KNOCK_VOLUME, rename it in your config file!)
+#if defined V8_MEDIUM // (former ADAPTIVE_KNOCK_VOLUME, rename it in your config file!)
     // This is EXPERIMENTAL!! TODO
     if (curKnockCylinder == 5 || curKnockCylinder == 1)
         knockMedium = false;
@@ -516,7 +516,7 @@ void IRAM_ATTR fixedPlaybackTimer()
         knockMedium = true;
 #endif
 
-#ifdef V8_468 // (Chevy 468, containing 16 ignition pulses)
+#if defined V8_468 // (Chevy 468, containing 16 ignition pulses)
     // 1th, 5th, 9th and 13th are the loudest
     // Ignition sequence: 1 - 8 - 4* - 3 - 6 - 5 - 7* - 2
     if (curKnockCylinder == 1 || curKnockCylinder == 5 || curKnockCylinder == 9 || curKnockCylinder == 13)
@@ -525,7 +525,7 @@ void IRAM_ATTR fixedPlaybackTimer()
         knockSilent = true;
 #endif
 
-#ifdef V2
+#if defined V2
     // V2 engine: 1st and 2nd knock pulses (of 4) will be louder
     if (curKnockCylinder == 1 || curKnockCylinder == 2)
         knockSilent = false;
@@ -533,7 +533,7 @@ void IRAM_ATTR fixedPlaybackTimer()
         knockSilent = true;
 #endif
 
-#ifdef R6
+#if defined R6
     // R6 inline 6 engine: 6th knock pulse (of 6) will be louder
     if (curKnockCylinder == 6)
         knockSilent = false;
@@ -541,7 +541,7 @@ void IRAM_ATTR fixedPlaybackTimer()
         knockSilent = true;
 #endif
 
-#ifdef R6_2
+#if defined R6_2
     // R6 inline 6 engine: 6th and 3rd knock pulse (of 6) will be louder
     if (curKnockCylinder == 6 || curKnockCylinder == 3)
         knockSilent = false;
