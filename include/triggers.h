@@ -22,37 +22,30 @@ void triggerIndicators()
     static boolean L;
     static boolean R;
 
-    // detect left indicator trigger -------------
-    if (steeringValue > (1500 + indicatorOn))
-    {
-        L = true;
-        R = false;
-    }
-    if (steeringValue < (1500 + indicatorOn / 3))
-        L = false;
-
     // detect right indicator trigger -------------
-    if (steeringValue < (1500 - indicatorOn))
-    {
-        R = true;
-        L = false;
-    }
-    if (steeringValue > (1500 - indicatorOn / 3))
-        R = false;
-        
-    if (indicatorLonManual)
-    {
-        L = true;
-        R = false;
-    }
-    else if (indicatorRonManual)
+    if ((steeringValue > (1500 + indicatorOn)) || indicatorRonManual)
     {
         L = false;
         R = true;
-    }
 
-    indicatorLon = R;
-    indicatorRon = L;
+        indicatorLonManual = false;
+    }
+    if ((steeringValue < (1500 + indicatorOn / 3)) & !indicatorRonManual)
+        R = false;
+
+    // detect left indicator trigger -------------
+    if ((steeringValue < (1500 - indicatorOn)) || indicatorLonManual)
+    {
+        R = false;
+        L = true;
+
+        indicatorRonManual = false;
+    }
+    if ((steeringValue > (1500 - indicatorOn / 3)) & !indicatorLonManual)
+        L = false;
+
+    indicatorLon = L;
+    indicatorRon = R;
 
     if (indicatorLon || indicatorRon)
         hazard = false;

@@ -34,10 +34,10 @@ void Ps3Notify()
         sirenTrigger = !sirenTrigger;
     }
 
-    if (Ps3.event.button_down.square)
-    {
-        blueLightTrigger = !blueLightTrigger;
-    }
+    // if (Ps3.event.button_down.square)
+    // {
+    //     headLightsHighBeamOn = !headLightsHighBeamOn;
+    // }
 
     // if (abs(Ps3.event.analog_changed.button.l1))
     // {
@@ -99,7 +99,32 @@ void Ps3Notify()
             }
         }
 #else
-//
+        if (Ps3.event.button_down.up)
+        {
+            if (lightsState == 4)
+            {
+                lightsState = 0;
+            }
+            else
+            {
+                lightsState = 4;
+            }
+        }
+
+        // if (Ps3.event.button_down.down)
+        //     Serial.println("Started pressing the down button");
+
+        if (Ps3.event.button_down.right)
+        {
+            indicatorRonManual = !indicatorRonManual;
+            indicatorLonManual = false;
+        }
+
+        if (Ps3.event.button_down.left)
+        {
+            indicatorLonManual = !indicatorLonManual;
+            indicatorRonManual = false;
+        }
 #endif
         tractionValue = map(yAxisValue, 127, -128, 1000, 2000);
     }
@@ -107,8 +132,6 @@ void Ps3Notify()
 
 void Ps3OnConnect()
 {
-    // engineStart = true;
-
     indicatorL.off();
     indicatorR.off();
 
