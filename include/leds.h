@@ -7,31 +7,31 @@ statusLED headLight(false); // "false" = output not inversed
 // statusLED tailLight(false);
 statusLED indicatorL(false);
 statusLED indicatorR(false);
-statusLED fogLight(false);
+// statusLED fogLight(false);
 statusLED reversingLight(false);
-statusLED roofLight(false);
-statusLED sideLight(false);
-statusLED beaconLight1(false);
-statusLED beaconLight2(false);
+// statusLED roofLight(false);
+// statusLED sideLight(false);
+// statusLED beaconLight1(false);
+// statusLED beaconLight2(false);
 statusLED shakerMotor(false);
-statusLED cabLight(false);
+// statusLED cabLight(false);
 statusLED brakeLight(false);
 
 void setupStatusLED()
 {
-    headLight.begin(HEADLIGHT_PIN, 15, 20000);           // Timer 15, 20kHz
+    headLight.begin(HEADLIGHT_PIN, 15, 20000); // Timer 15, 20kHz
     // tailLight.begin(TAILLIGHT_PIN, 2, 20000);            // Timer 2, 20kHz
-    indicatorL.begin(INDICATOR_LEFT_PIN, 3, 20000);      // Timer 3, 20kHz
-    indicatorR.begin(INDICATOR_RIGHT_PIN, 4, 20000);     // Timer 4, 20kHz
-    fogLight.begin(FOGLIGHT_PIN, 5, 20000);              // Timer 5, 20kHz
+    indicatorL.begin(INDICATOR_LEFT_PIN, 3, 20000);  // Timer 3, 20kHz
+    indicatorR.begin(INDICATOR_RIGHT_PIN, 4, 20000); // Timer 4, 20kHz
+    // fogLight.begin(FOGLIGHT_PIN, 5, 20000);              // Timer 5, 20kHz
     reversingLight.begin(REVERSING_LIGHT_PIN, 6, 20000); // Timer 6, 20kHz
-    roofLight.begin(ROOFLIGHT_PIN, 7, 20000);            // Timer 7, 20kHz
-    sideLight.begin(SIDELIGHT_PIN, 8, 20000);            // Timer 8, 20kHz
-    beaconLight1.begin(BEACON_LIGHT1_PIN, 9, 20000);     // Timer 9, 20kHz
-    beaconLight2.begin(BEACON_LIGHT2_PIN, 10, 20000);    // Timer 10, 20kHz
-    brakeLight.begin(BRAKELIGHT_PIN, 11, 20000);         // Timer 11, 20kHz
-    cabLight.begin(CABLIGHT_PIN, 12, 20000);             // Timer 12, 20kHz
-    shakerMotor.begin(SHAKER_MOTOR_PIN, 13, 20000);      // Timer 13, 20kHz
+    // roofLight.begin(ROOFLIGHT_PIN, 7, 20000);            // Timer 7, 20kHz
+    // sideLight.begin(SIDELIGHT_PIN, 8, 20000);            // Timer 8, 20kHz
+    // beaconLight1.begin(BEACON_LIGHT1_PIN, 9, 20000);     // Timer 9, 20kHz
+    // beaconLight2.begin(BEACON_LIGHT2_PIN, 10, 20000);    // Timer 10, 20kHz
+    brakeLight.begin(BRAKELIGHT_PIN, 11, 20000); // Timer 11, 20kHz
+    // cabLight.begin(CABLIGHT_PIN, 12, 20000);             // Timer 12, 20kHz
+    shakerMotor.begin(SHAKER_MOTOR_PIN, 13, 20000); // Timer 13, 20kHz
 }
 
 void brakeLightsSub(uint8_t brightness)
@@ -81,9 +81,13 @@ void headLightsSub(bool head, bool fog, bool roof, bool park)
     }
     // Headlights (high beam bulb)
     if (headLightsFlasherOn || (headLightsHighBeamOn && head))
-        roofLight.pwm(200 - crankingDim);
+    {
+        // roofLight.pwm(200 - crankingDim);
+    }
     else
-        roofLight.off();
+    {
+        // roofLight.off();
+    }
 
 #else  // Bulbs wired as labeled on the board ----
     // Headlights
@@ -119,9 +123,13 @@ void headLightsSub(bool head, bool fog, bool roof, bool park)
 
     // Fog lights
     if (!fog)
-        fogLight.off();
+    {
+        // fogLight.off();
+    }
     else
-        fogLight.pwm(200 - crankingDim);
+    {
+        // fogLight.pwm(200 - crankingDim);
+    }
 }
 
 void led()
@@ -163,19 +171,19 @@ void led()
     {
         if (doubleFlashBlueLight)
         {
-            beaconLight1.flash(30, 80, 400, 2);      // Simulate double flash lights
-            beaconLight2.flash(30, 80, 400, 2, 330); // Simulate double flash lights (with delay for first pass)
+            // beaconLight1.flash(30, 80, 400, 2);      // Simulate double flash lights
+            // beaconLight2.flash(30, 80, 400, 2, 330); // Simulate double flash lights (with delay for first pass)
         }
         else
         {
-            beaconLight1.flash(30, 500, 0, 0);      // Simulate rotating beacon lights with short flashes
-            beaconLight2.flash(30, 500, 0, 0, 100); // Simulate rotating beacon lights with short flashes
+            // beaconLight1.flash(30, 500, 0, 0);      // Simulate rotating beacon lights with short flashes
+            // beaconLight2.flash(30, 500, 0, 0, 100); // Simulate rotating beacon lights with short flashes
         }
     }
     else
     {
-        beaconLight2.off();
-        beaconLight1.off();
+        // beaconLight2.off();
+        // beaconLight1.off();
     }
 
     // Indicators (turn signals, blinkers) ----
@@ -299,8 +307,8 @@ void led()
     {
 
     case 0: // lights off ---------------------------------------------------------------------
-        cabLight.off();
-        sideLight.off();
+        // cabLight.off();
+        // sideLight.off();
         lightsOn = false;
         headLightsSub(false, false, false, false);
         brakeLightsSub(0); // 0 brightness, if not braking
@@ -310,26 +318,26 @@ void led()
 #ifdef NO_CABLIGHTS
         lightsState = 2; // Skip cablights
 #else
-        cabLight.pwm(cabLightsBrightness - crankingDim);
+        // cabLight.pwm(cabLightsBrightness - crankingDim);
 #endif
-        sideLight.off();
+        // sideLight.off();
         headLightsSub(false, false, false, false);
         brakeLightsSub(0); // 0 brightness, if not braking
         break;
 
     case 2: // cab & roof & side lights ---------------------------------------------------------------------
 #ifndef NO_CABLIGHTS
-        cabLight.pwm(cabLightsBrightness - crankingDim);
+        // cabLight.pwm(cabLightsBrightness - crankingDim);
 #endif
-        sideLight.pwm(constrain(sideLightsBrightness - crankingDim, (sideLightsBrightness / 2), 255));
+        // sideLight.pwm(constrain(sideLightsBrightness - crankingDim, (sideLightsBrightness / 2), 255));
         headLightsSub(false, false, true, true);
-        fogLight.off();
+        // fogLight.off();
         brakeLightsSub(rearlightParkingBrightness); // () = brightness, if not braking
         break;
 
     case 3: // roof & side & head lights ---------------------------------------------------------------------
-        cabLight.off();
-        sideLight.pwm(constrain(sideLightsBrightness - crankingDim, (sideLightsBrightness / 2), 255));
+        // cabLight.off();
+        // sideLight.pwm(constrain(sideLightsBrightness - crankingDim, (sideLightsBrightness / 2), 255));
         lightsOn = true;
         headLightsSub(true, false, true, false);
         brakeLightsSub(rearlightDimmedBrightness); // 50 brightness, if not braking
@@ -339,8 +347,8 @@ void led()
 #ifdef NO_FOGLIGHTS
         lightsState = 5; // Skip foglights
 #endif
-        cabLight.off();
-        sideLight.pwm(constrain(sideLightsBrightness - crankingDim, (sideLightsBrightness / 2), 255));
+        // cabLight.off();
+        // sideLight.pwm(constrain(sideLightsBrightness - crankingDim, (sideLightsBrightness / 2), 255));
         headLightsSub(true, true, true, false);
         brakeLightsSub(rearlightDimmedBrightness); // 50 brightness, if not braking
         break;
@@ -349,8 +357,8 @@ void led()
 #ifdef NO_CABLIGHTS
         lightsState = 0; // Skip cablights
 #endif
-        cabLight.pwm(cabLightsBrightness - crankingDim);
-        sideLight.pwm(constrain(sideLightsBrightness - crankingDim, (sideLightsBrightness / 2), 255));
+        // cabLight.pwm(cabLightsBrightness - crankingDim);
+        // sideLight.pwm(constrain(sideLightsBrightness - crankingDim, (sideLightsBrightness / 2), 255));
         headLightsSub(true, true, true, false);
         brakeLightsSub(rearlightDimmedBrightness); // 50 brightness, if not braking
         break;
