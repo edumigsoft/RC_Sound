@@ -67,7 +67,7 @@ boolean hazard;
 uint8_t crankingDim;
 uint8_t dipDim;
 uint8_t xenonIgnitionFlash;
-static unsigned long xenonMillis;
+// static unsigned long xenonMillis;
 uint32_t indicatorFade = 300; // 300 is the fading time, simulating an incandescent bulb
 // Adjust the brightness of your lights here -----------------------------------------------------------------------------------------------------
 // All brightness values 0 - 255
