@@ -117,9 +117,13 @@ void setup()
 
   setupBattery();
 
-  setupPs3();
+  setupTraction();
 
   setupSteering();
+
+  setupPs3();
+
+  // setupSteering();
 
   // Task 1 setup (running on core 0)
   TaskHandle_t Task1;
@@ -147,7 +151,7 @@ void setup()
 
   rtc_wdt_feed(); // Feed watchdog timer
 
-  setupTraction();
+  // setupTraction();
 }
 
 void loop()

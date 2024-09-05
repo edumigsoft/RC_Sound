@@ -376,7 +376,7 @@ void setupTraction()
     // 3. configure channels with settings above
     mcpwm_init(MCPWM_UNIT_1, MCPWM_TIMER_0, &pwm_config); // Configure PWM0A & PWM0B
 
-    motorDuty(0);
+    motorDuty(1500);
 }
 
 #endif // __TRACTION_H__
